@@ -5,10 +5,10 @@ from urllib import urlopen
 import re
 import logging
 import json
-
+import sys
+print sys.getdefaultencoding()
 
 #沪深300 中证500 050002 001052
-
 def get_fund_data(fund_list):
     """Get the data of fund.
 
@@ -21,16 +21,18 @@ def get_fund_data(fund_list):
     result_all = {}
     for i in fund_list:
         try:
-            result = urlopen('http://fundgz.1234567.com.cn/js/{0}.js?'.format(i)).read().decode("utf-8")
+            result = urlopen('http://fundgz.1234567.com.cn/js/{0}.js?'.format(i)).read()
+            #result = urlopen('http://fund.eastmoney.com/js/fundcode_search.js').read()
+            # http://fund.eastmoney.com/pingzhongdata/000001.js
+            print result, type(result)
         except Exception, e:
             logging.error(e)
         else:
             result = eval(re.search('{.*}', result).group())
+            result["name"] = result["name"].decode('gbk') #.encode('utf8')
             result_all[result['name']] = result
 
-    with open('result.json', 'w') as f:
-        f.write(json.dumps(result_all, ensure_ascii=False))
+    print result_all
 
-fund_list = ['050002', '001052', '161725', '270042', '110011']
+fund_list = ['050002', '001052']
 get_fund_data(fund_list)
-
